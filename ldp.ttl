@@ -59,7 +59,7 @@ ldp:BasicContainer a rdfs:Class, owl:Class;
   no extra consequences other than creating an ldp:contains relation from the container to
   the newly created resource.
   """ .
-
+ 
 ldp:contains a rdf:Property, owl:ObjectProperty;
   rdfs:label "contains";
   rdfs:domain ldp:Container;
@@ -68,10 +68,10 @@ ldp:contains a rdf:Property, owl:ObjectProperty;
     the ldp:contains relation relates an ldp:Container to a ldp:Resource ( ie a document of some form )
   """ .
 
-ldp:membershipResource a rdf:Property, owl:ObjectProperty, owl:FunctionalProperty;
+ldp:membershipResource a rdf:Property, owl:FunctionalProperty;
   rdfs:label "membershipResource";
   rdfs:domain ldp:IndirectContainer;
-  rdfs:range  rdf:Resource .
+  rdfs:range  rdfs:Resource .
 
 
 ldp:hasMemberRelation a rdf:Property, owl:FunctionalProperty, owl:ObjectProperty;
@@ -86,8 +86,8 @@ ldp:isMemberOfRelation a rdf:Property, owl:FunctionalProperty, owl:ObjectPropert
    skos:editorialNote """
       the ldp:isMemberOfRelation is the equivalent to the hasMemberRelation followed by the owl:inverseOf property 
    """;
-   rdfs:domain  ldp:IndirectContainer; 
-   rdfs:range rdf:Property.
+   rdfs:domain ldp:IndirectContainer; 
+   rdfs:range rdf:Property .
 
 ldp:insertedContentRelation a rdf:Property, owl:FunctionalProperty, owl:ObjectProperty;
   rdfs:label "insertedContentRelation";
@@ -114,4 +114,16 @@ ldp:BasicContainer
                      owl:hasValue ldp:MemberSubject
                     ])].
 
+
+## example
+# @prefix ex: <http://example/> .
+# @prefix sioc: <http://rdfs.org/sioc/ns#> .
+# 
+# <http://example/2014/> a ldp:DirectContainer;
+#      ldp:isMemberOfRelation sioc:has_container;
+#      ldp:membershipResource <http://example/2014/>;
+#      ldp:contains <http://example/2014/e1> .
+# 
+# sioc:has_container owl:inverseOf ldp:contains .
+# 
 
