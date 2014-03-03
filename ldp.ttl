@@ -82,7 +82,7 @@ ldp:hasMemberRelation a rdf:Property, owl:FunctionalProperty, owl:ObjectProperty
 
 ldp:isMemberOfRelation a rdf:Property, owl:FunctionalProperty, owl:ObjectProperty; 
    rdfs:label "isMemberOfRelation";
-   owl:equivalentProperty [ owl:propertyChainAxiom ( ldp:hasMemberRelation owl:inverseOf ) ];
+   owl:subPropertyOf [ owl:propertyChainAxiom ( ldp:hasMemberRelation owl:inverseOf ) ];
    skos:editorialNote """
       the ldp:isMemberOfRelation is the equivalent to the hasMemberRelation followed by the owl:inverseOf property 
    """;
