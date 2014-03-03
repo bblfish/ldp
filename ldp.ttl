@@ -70,13 +70,13 @@ ldp:contains a rdf:Property, owl:ObjectProperty;
 
 ldp:membershipResource a rdf:Property, owl:ObjectProperty, owl:FunctionalProperty;
   rdfs:label "membershipResource";
-  rdfs:domain ldp:IndirectContainer, ldp:DirectContainer;
+  rdfs:domain ldp:IndirectContainer;
   rdfs:range  rdf:Resource .
 
 
 ldp:hasMemberRelation a rdf:Property, owl:FunctionalProperty, owl:ObjectProperty;
   rdfs:label "hasMemberRelation";
-  rdfs:domain ldp:IndirectContainer, ldp:DirectContainer;
+  rdfs:domain ldp:IndirectContainer;
   rdfs:range  rdf:Property .
   
 
@@ -86,7 +86,7 @@ ldp:isMemberOfRelation a rdf:Property, owl:FunctionalProperty, owl:ObjectPropert
    skos:editorialNote """
       the ldp:isMemberOfRelation is the equivalent to the hasMemberRelation followed by the owl:inverseOf property 
    """;
-   rdfs:domain  ldp:IndirectContainer, ldp:DirectContainer; 
+   rdfs:domain  ldp:IndirectContainer; 
    rdfs:range rdf:Property.
 
 ldp:insertedContentRelation a rdf:Property, owl:FunctionalProperty, owl:ObjectProperty;
@@ -97,24 +97,21 @@ ldp:insertedContentRelation a rdf:Property, owl:FunctionalProperty, owl:ObjectPr
 ## restrictions
 
 ldp:DirectContainer 
-    rdfs:subClassOf [ a owl:Restriction;
-                     owl:onProperty ldp:membershipResource;
-                     owl:hasSelf "true"^^xsd:boolean ], 
-                    [ a owl:Restriction;
+    owl:equivalentClass [ a owl:Restriction;
                      owl:onProperty ldp:insertedContentRelation;
                      owl:hasValue ldp:MemberSubject
                     ]. 
 
 ldp:BasicContainer 
-    rdfs:subClassOf [ a owl:Restriction;
+    owl:equivalentClass [ owl:intersectionOf ( [ a owl:Restriction;
                      owl:onProperty ldp:membershipResource;
-                     owl:hasSelf "true"^^xsd:boolean ],
-                   [ a owl:Restriction;
+                     owl:hasSelf "true"^^xsd:boolean ]
+                    [ a owl:Restriction;
                      owl:onProperty ldp:hasMemberRelation;
-                     owl:hasValue ldp:contains ], 
-                   [ a owl:Restriction;
+                     owl:hasValue ldp:contains ] 
+                    [ a owl:Restriction;
                      owl:onProperty ldp:insertedContentRelation;
                      owl:hasValue ldp:MemberSubject
-                    ].
+                    ])].
 
 
