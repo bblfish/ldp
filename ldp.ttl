@@ -37,30 +37,40 @@ extensions.
   """ .
 
 ldp:IndirectContainer a rdfs:Class, owl:Class;
-   rdfs:subClassOf ldp:Container;
+   rdfs:subClassOf ldp:Container,
+                   [ a owl:Restriction;
+                     owl:onProperty ldp:hasMemberRelation;
+                     owl:cardinality 1;
+                   ],
+                   [ a owl:Restriction;
+                     owl:onProperty ldp:insertedContentRelation;
+                     owl:cardinality 1;
+                   ],
+                   [ a owl:Restriction;
+                     owl:onProperty ldp:membershipResource;
+                     owl:cardinality 1;
+                   ];
    rdfs:comment """
    A LDPC that has the flexibility of choosing what form its membership triples take, 
    and allows members to be any resources [WEBARCH], defined in the posted document.
    """ .
 
-ldp:DirectContainer a rdfs:Class, owl:Class;
-  rdfs:subClassOf ldp:Container;
-   rdfs:comment """
-   A LDPC that has the flexibility of choosing what form its membership triples take, 
-   and allows members to be any resources [WEBARCH], not only documents.
-   """ .
-
-ldp:BasicContainer a rdfs:Class, owl:Class;
-  rdfs:label "BasicContainer";
-  rdfs:subClassOf ldp:Container;
-  rdfs:comment """
-  A LDPC that uses a single pre-defined predicate to link to both its contained and 
-  member documents (information resources). Posting to an ldp:BasicContainer has
-  no extra consequences other than creating an ldp:contains relation from the container to
-  the newly created resource.
-  """ .
- 
-ldp:contains a rdf:Property, owl:ObjectProperty;
+#ldp:DirectContainer a rdfs:Class, owl:Class;
+#   rdfs:comment """
+#   A LDPC that has the flexibility of choosing what form its membership triples take, 
+#   and allows members to be any resources [WEBARCH], not only documents.
+#   """ .
+#
+#ldp:BasicContainer a rdfs:Class, owl:Class;
+#  rdfs:label "BasicContainer";
+#  rdfs:comment """
+#  A LDPC that uses a single pre-defined predicate to link to both its contained and 
+#  member documents (information resources). Posting to an ldp:BasicContainer has
+#  no extra consequences other than creating an ldp:contains relation from the container to
+#  the newly created resource.
+#  """ .
+# 
+ldp:contains a rdf:Property;
   rdfs:label "contains";
   rdfs:domain ldp:Container;
   rdfs:range ldp:Resource;
@@ -68,7 +78,7 @@ ldp:contains a rdf:Property, owl:ObjectProperty;
     the ldp:contains relation relates an ldp:Container to a ldp:Resource ( ie a document of some form )
   """ .
 
-ldp:membershipResource a rdf:Property, owl:FunctionalProperty;
+ldp:membershipResource a rdf:Property, owl:ObjectProperty, owl:FunctionalProperty;
   rdfs:label "membershipResource";
   rdfs:domain ldp:IndirectContainer;
   rdfs:range  rdfs:Resource .
@@ -97,33 +107,46 @@ ldp:insertedContentRelation a rdf:Property, owl:FunctionalProperty, owl:ObjectPr
 ## restrictions
 
 ldp:DirectContainer 
-    owl:equivalentClass [ a owl:Restriction;
-                     owl:onProperty ldp:insertedContentRelation;
-                     owl:hasValue ldp:MemberSubject
-                    ]. 
+   owl:equivalentClass  
+       [ a owl:Restriction;
+        owl:onProperty ldp:insertedContentRelation;
+        owl:hasValue owl:sameAs 
+       ]. 
 
 ldp:BasicContainer 
-    owl:equivalentClass [ owl:intersectionOf ( [ a owl:Restriction;
-                     owl:onProperty ldp:membershipResource;
-                     owl:hasSelf "true"^^xsd:boolean ]
-                    [ a owl:Restriction;
-                     owl:onProperty ldp:hasMemberRelation;
-                     owl:hasValue ldp:contains ] 
-                    [ a owl:Restriction;
-                     owl:onProperty ldp:insertedContentRelation;
-                     owl:hasValue ldp:MemberSubject
-                    ])].
-
+   owl:equivalentClass [ a owl:Class; 
+       owl:intersectionOf (
+             [ a owl:Restriction;
+              owl:onProperty ldp:membershipResource;
+              owl:hasSelf "true"^^xsd:boolean ]
+             [ a owl:Restriction;
+              owl:onProperty ldp:hasMemberRelation;
+              owl:hasValue ldp:contains ]
+             [ a owl:Restriction;
+              owl:onProperty ldp:insertedContentRelation;
+              owl:hasValue owl:sameAs 
+             ] 
+         ) ] .
 
 ## example
-# @prefix ex: <http://example/> .
-# @prefix sioc: <http://rdfs.org/sioc/ns#> .
-# 
-# <http://example/2014/> a ldp:DirectContainer;
-#      ldp:isMemberOfRelation sioc:has_container;
-#      ldp:membershipResource <http://example/2014/>;
-#      ldp:contains <http://example/2014/e1> .
-# 
+@base <http://example.org/> .
+@prefix ex: <http://example/> .
+@prefix sioc: <http://rdfs.org/sioc/ns#> .
+ 
+</2014/> a ldp:DirectContainer;
+      ldp:isMemberOfRelation sioc:has_container;
+      ldp:membershipResource </2014/>;
+      ldp:contains </2014/e1> .
+ 
 # sioc:has_container owl:inverseOf ldp:contains .
 # 
+
+@prefix dcterms: <http://purl.org/dc/terms/>.
+@prefix o: <http://example.org/ontology/>.
+
+</netWorth/> a ldp:DirectContainer;
+   dcterms:title "The assets of JohnZSmith";
+   ldp:membershipResource </netWorth/nw1/>;
+   ldp:hasMemberRelation o:asset;
+   ldp:contains </netWorth/a1>, </netWorth/a2> .
 
