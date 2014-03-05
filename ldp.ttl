@@ -69,7 +69,7 @@ ldp:IndirectContainer a rdfs:Class, owl:Class;
 #  no extra consequences other than creating an ldp:contains relation from the container to
 #  the newly created resource.
 #  """ .
-# 
+ 
 ldp:contains a rdf:Property;
   rdfs:label "contains";
   rdfs:domain ldp:Container;
@@ -90,9 +90,10 @@ ldp:hasMemberRelation a rdf:Property, owl:FunctionalProperty, owl:ObjectProperty
   rdfs:range  rdf:Property .
   
 
+
 ldp:isMemberOfRelation a rdf:Property, owl:FunctionalProperty, owl:ObjectProperty; 
    rdfs:label "isMemberOfRelation";
-   owl:subPropertyOf [ owl:propertyChainAxiom ( ldp:hasMemberRelation owl:inverseOf ) ];
+   owl:propertyChainAxiom ( ldp:hasMemberRelation owl:inverseOf );
    skos:editorialNote """
       the ldp:isMemberOfRelation is the equivalent to the hasMemberRelation followed by the owl:inverseOf property 
    """;

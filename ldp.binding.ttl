@@ -80,7 +80,7 @@ ldp:hasMemberRelation a rdf:Property, owl:FunctionalProperty, owl:ObjectProperty
 
 ldp:isMemberOfRelation a rdf:Property, owl:FunctionalProperty, owl:ObjectProperty; 
    rdfs:label "isMemberOfRelation";
-   owl:subPropertyOf [ owl:propertyChainAxiom ( ldp:hasMemberRelation owl:inverseOf ) ];
+   owl:propertyChainAxiom ( ldp:hasMemberRelation owl:inverseOf ) ;
    skos:editorialNote """
       the ldp:isMemberOfRelation is the equivalent to the hasMemberRelation followed by the owl:inverseOf property 
    """;
@@ -122,19 +122,22 @@ ldp:DirectContainerRule owl:equivalentClass [ a owl:Restriction;
                      owl:hasValue ldp:MemberSubject
                     ]. 
 
+ldp:memberResourceToBindingRule owl:propertyChainAxiom ( ldp:memberResource ldp:bindingRule );
+   rdfs:comment """
+    we just use this here because the owl:hasSelf restriction no longer works 
+    with the rule indirection.
+   """.
+
 ldp:ContainerRule owl:equivalentClass [ owl:intersectionOf ( 
                 [ a owl:Restriction;
-                  owl:onProperty [ 
-                    owl:subPropertyOf 
-                      [ owl:propertyChainAxiom ( ldp:memberResource ldp:bindingRule ) ];
-                    ];
-                 owl:hasSelf "true"^^xsd:boolean ]
+                  owl:onProperty ldp:memberResourceToBindingRule;
+                  owl:hasSelf "true"^^xsd:boolean ]
                 [ a owl:Restriction;
-                 owl:onProperty ldp:hasMemberRelation;
-                 owl:hasValue ldp:contains ] 
+                  owl:onProperty ldp:hasMemberRelation;
+                  owl:hasValue ldp:contains ] 
                 [ a owl:Restriction;
-                 owl:onProperty ldp:insertedContentRelation;
-                 owl:hasValue ldp:MemberSubject
+                  owl:onProperty ldp:insertedContentRelation;
+                  owl:hasValue ldp:MemberSubject
                 ])];
    rdfs:label "ContainerRule";
    rdfs:comment """
