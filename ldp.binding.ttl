@@ -157,24 +157,35 @@ ldp:Container
 
 ldp:IndirectContainer 
     rdfs:comment """
-     an IndirectContainer has 1 IndirectBindingRule 
-   ( and since it has a bindingRule it is a Container too )
+     an IndirectContainer has at most 2 binding rules of which 1 IndirectBindingRule 
+   ( and since it has a bindingRule it is a Container too ) 
     """;
-    owl:equivalentClass  [ a owl:Restriction; 
+    owl:equivalentClass [ owl:intersectionOf (
+            [ a owl:Restriction;
+              owl:onProperty ldp:bindingRule;
+              owl:maxCardinality 2 ]
+            [ a owl:Restriction; 
               owl:onProperty ldp:bindingRule;
               owl:qualifiedCardinality 1;
-              owl:onClass ldp:IndirectBindingRule ]. 
+              owl:onClass ldp:IndirectBindingRule ]
+            )
+      ]. 
 
 ldp:DirectContainer 
     rdfs:comment """
-     an IndirectContainer has 1 IndirectBindingRule 
+     an DirectContainer has at most 2 biding rules of which 1 DirectBindingRule 
    ( and since it has a bindingRule it is a Container too )
     """;
-     owl:equivalentClass [  a owl:Restriction; 
+     owl:equivalentClass [ owl:intersectionOf (
+            [ a owl:Restriction;
+              owl:onProperty ldp:bindingRule;
+              owl:maxCardinality 2 ]
+            [  a owl:Restriction; 
               owl:onProperty ldp:bindingRule;
               owl:qualifiedCardinality 1;
-              owl:onClass ldp:DirectBindingRule 
-             ]. 
+              owl:onClass ldp:DirectBindingRule ]
+           )
+      ]. 
 
 ldp:BasicContainer 
    rdfs:comment "a BasicContainer only has one bindingRule - and so the ContainerRule";
