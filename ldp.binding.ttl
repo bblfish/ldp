@@ -67,29 +67,30 @@ ldp:contains a rdf:Property, owl:ObjectProperty;
 
 ldp:membershipResource a rdf:Property, owl:FunctionalProperty;
   rdfs:label "membershipResource";
-  rdfs:domain ldp:IndirectContainerRule;
+  rdfs:domain ldp:IndirectBindingRule;
   rdfs:range  rdfs:Resource .
 
 rdf:Property a owl:Class .
 
 ldp:hasMemberRelation a rdf:Property, owl:FunctionalProperty, owl:ObjectProperty;
   rdfs:label "hasMemberRelation";
-  rdfs:domain ldp:IndirectContainerRule;
+  rdfs:domain ldp:IndirectBindingRule;
   rdfs:range  rdf:Property .
   
 
 ldp:isMemberOfRelation a rdf:Property, owl:FunctionalProperty, owl:ObjectProperty; 
    rdfs:label "isMemberOfRelation";
-   owl:propertyChainAxiom ( ldp:hasMemberRelation owl:inverseOf ) ;
+# pellet has problems reasoning with property chains. remove the following for the moment
+#   owl:propertyChainAxiom ( ldp:hasMemberRelation owl:inverseOf ) ;
    skos:editorialNote """
       the ldp:isMemberOfRelation is the equivalent to the hasMemberRelation followed by the owl:inverseOf property 
    """;
-   rdfs:domain ldp:IndirectContainerRule; 
+   rdfs:domain ldp:IndirectBindingRule; 
    rdfs:range rdf:Property .
 
 ldp:insertedContentRelation a owl:FunctionalProperty, owl:ObjectProperty;
   rdfs:label "insertedContentRelation";
-  rdfs:domain ldp:IndirectContainerRule;
+  rdfs:domain ldp:IndirectBindingRule;
   rdfs:range  rdf:Property .
 
 ### 
@@ -103,7 +104,7 @@ ldp:bindingRule a rdf:Property, owl:ObjectProperty;
    rdfs:domain ldp:Container;
    rdfs:range ldp:HTTPActionRule .
 
-ldp:IndirectContainerRule rdfs:subClassOf ldp:HTTPActionRule, 
+ldp:IndirectBindingRule rdfs:subClassOf ldp:HTTPActionRule, 
                    [ a owl:Restriction;
                      owl:onProperty ldp:hasMemberRelation;
                      owl:cardinality 1;
@@ -117,7 +118,7 @@ ldp:IndirectContainerRule rdfs:subClassOf ldp:HTTPActionRule,
                      owl:cardinality 1;
                    ].
 
-ldp:DirectContainerRule owl:equivalentClass [ a owl:Restriction;
+ldp:DirectBindingRule owl:equivalentClass [ a owl:Restriction;
                      owl:onProperty ldp:insertedContentRelation;
                      owl:hasValue ldp:MemberSubject
                     ]. 
@@ -130,7 +131,9 @@ ldp:memberResourceToBindingRule owl:propertyChainAxiom ( ldp:memberResource ldp:
 
 ldp:ContainerRule owl:equivalentClass [ owl:intersectionOf ( 
                 [ a owl:Restriction;
-                  owl:onProperty ldp:memberResourceToBindingRule;
+# problem with pellet reasoning on properties defined via property chains
+#                  owl:onProperty ldp:memberResourceToBindingRule;
+                   owl:onProperty ldp:memberResource;
                   owl:hasSelf "true"^^xsd:boolean ]
                 [ a owl:Restriction;
                   owl:onProperty ldp:hasMemberRelation;
@@ -146,26 +149,61 @@ ldp:ContainerRule owl:equivalentClass [ owl:intersectionOf (
 
 
 ldp:Container 
-   rdfs:subClassOf [ a owl:Restriction;
-         owl:onProperty ldp:bindingRule;
-         owl:someValuesFrom ldp:ContainerRule ].
-
-ldp:IndirectContainer 
-    rdfs:subClassOf  [ a owl:Restriction; 
-              owl:onProperty ldp:bindingRule;
-              owl:maxQualifiedCardinality 2;
-              owl:onClass ldp:IndirectContainerRule ]. 
-
-ldp:DirectContainer 
-    rdfs:subClassOf [  a owl:Restriction; 
-              owl:onProperty ldp:bindingRule;
-              owl:maxQualifiedCardinality 2;
-              owl:onClass ldp:DirectContainerRule 
-             ]. 
-
-ldp:BasicContainer 
+   rdfs:comment "a Container has 1 ContainerRule ( and may have others )";
    owl:equivalentClass [ a owl:Restriction;
          owl:onProperty ldp:bindingRule;
          owl:qualifiedCardinality 1;
-         owl:onClass ldp:ContainerRule ] .
+         owl:onClass ldp:ContainerRule ].
 
+ldp:IndirectContainer 
+    rdfs:comment """
+     an IndirectContainer has 1 IndirectBindingRule 
+   ( and since it has a bindingRule it is a Container too )
+    """;
+    owl:equivalentClass  [ a owl:Restriction; 
+              owl:onProperty ldp:bindingRule;
+              owl:qualifiedCardinality 1;
+              owl:onClass ldp:IndirectBindingRule ]. 
+
+ldp:DirectContainer 
+    rdfs:comment """
+     an IndirectContainer has 1 IndirectBindingRule 
+   ( and since it has a bindingRule it is a Container too )
+    """;
+     owl:equivalentClass [  a owl:Restriction; 
+              owl:onProperty ldp:bindingRule;
+              owl:qualifiedCardinality 1;
+              owl:onClass ldp:DirectBindingRule 
+             ]. 
+
+ldp:BasicContainer 
+   rdfs:comment "a BasicContainer only has one bindingRule - and so the ContainerRule";
+   owl:equivalentClass [ a owl:Restriction;
+         owl:onProperty ldp:bindingRule;
+         owl:cardinality 1 ] .
+
+## example
+@base <http://example.org/> .
+@prefix ex: <http://example/> .
+@prefix sioc: <http://rdfs.org/sioc/ns#> .
+ 
+</2014/> a ldp:DirectContainer;
+      ldp:bindingRule [ a ldp:DirectBindingRule;
+               ldp:isMemberOfRelation sioc:has_container;
+               ldp:membershipResource </2014/>;
+            ];
+      ldp:contains </2014/e1> .
+ 
+# sioc:has_container owl:inverseOf ldp:contains .
+# 
+
+@prefix dcterms: <http://purl.org/dc/terms/>.
+@prefix o: <http://example.org/ontology/>.
+
+</netWorth/> a ldp:DirectContainer;
+   dcterms:title "The assets of JohnZSmith";
+   ldp:bindingRule [ a ldp:DirectBindingRule;
+        ldp:membershipResource </netWorth/nw1/>;
+        ldp:hasMemberRelation o:asset;
+      ];
+   ldp:contains </netWorth/a1>, </netWorth/a2> .
