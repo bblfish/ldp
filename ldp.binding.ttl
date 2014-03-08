@@ -67,33 +67,36 @@ ldp:contains a rdf:Property, owl:ObjectProperty;
 
 ldp:membershipResource a rdf:Property, owl:FunctionalProperty;
   rdfs:label "membershipResource";
+  owl:propertyChainAxiom ( ldp:bindingRule ldp:subject ) ;
   rdfs:domain ldp:IndirectBindingRule;
   rdfs:range  rdfs:Resource .
 
-rdf:Property a owl:Class .
-
 ldp:hasMemberRelation a rdf:Property, owl:FunctionalProperty, owl:ObjectProperty;
   rdfs:label "hasMemberRelation";
+  owl:propertyChainAxiom ( ldp:bindingRule ldp:relation ) ;
   rdfs:domain ldp:IndirectBindingRule;
   rdfs:range  rdf:Property .
   
 
 ldp:isMemberOfRelation a rdf:Property, owl:FunctionalProperty, owl:ObjectProperty; 
    rdfs:label "isMemberOfRelation";
-# pellet has problems reasoning with property chains. remove the following for the moment
-#   owl:propertyChainAxiom ( ldp:hasMemberRelation owl:inverseOf ) ;
+   owl:propertyChainAxiom ( ldp:hasMemberRelation owl:inverseOf ) ;
    skos:editorialNote """
       the ldp:isMemberOfRelation is the equivalent to the hasMemberRelation followed by the owl:inverseOf property 
    """;
-   rdfs:domain ldp:IndirectBindingRule; 
    rdfs:range rdf:Property .
 
 ldp:insertedContentRelation a owl:FunctionalProperty, owl:ObjectProperty;
   rdfs:label "insertedContentRelation";
-  rdfs:domain ldp:IndirectBindingRule;
+  owl:propertyChainAxiom ( ldp:bindingRule ldp:contentRelation ) ;
   rdfs:range  rdf:Property .
 
 ### 
+#
+# New rules based framework 
+#
+### 
+
 ldp:HTTPActionRule a rdfs:Class;
    rdfs:comment """
       a rule on what consequences will occur on POSTing to a container.
@@ -104,42 +107,68 @@ ldp:bindingRule a rdf:Property, owl:ObjectProperty;
    rdfs:domain ldp:Container;
    rdfs:range ldp:HTTPActionRule .
 
+ldp:subject a rdf:Property, owl:FunctionalProperty;
+  rdfs:label "rule subject";
+  rdfs:domain ldp:IndirectBindingRule;
+  rdfs:range  rdfs:Resource .
+
+ldp:relation a rdf:Property, owl:FunctionalProperty, owl:ObjectProperty;
+  rdfs:label "rule relation";
+  rdfs:domain ldp:IndirectBindingRule;
+  rdfs:range  rdf:Property .
+
+ldp:contentRelation a owl:FunctionalProperty, owl:ObjectProperty;
+  rdfs:label "content relation";
+  rdfs:domain ldp:IndirectBindingRule;
+  rdfs:range  rdf:Property .
+
 ldp:IndirectBindingRule rdfs:subClassOf ldp:HTTPActionRule, 
                    [ a owl:Restriction;
-                     owl:onProperty ldp:hasMemberRelation;
+                     owl:onProperty ldp:subject;
                      owl:cardinality 1;
                    ],
                    [ a owl:Restriction;
-                     owl:onProperty ldp:insertedContentRelation;
+                     owl:onProperty ldp:relation;
                      owl:cardinality 1;
                    ],
                    [ a owl:Restriction;
-                     owl:onProperty ldp:membershipResource;
+                     owl:onProperty ldp:contentRelation;
                      owl:cardinality 1;
                    ].
 
 ldp:DirectBindingRule owl:equivalentClass [ a owl:Restriction;
-                     owl:onProperty ldp:insertedContentRelation;
+                     owl:onProperty ldp:contentRelation;
                      owl:hasValue ldp:MemberSubject
                     ]. 
 
-ldp:memberResourceToBindingRule owl:propertyChainAxiom ( ldp:memberResource ldp:bindingRule );
+ldp:subjectToBindingRule a rdf:Property;
+#   owl:propertyChainAxiom ( ldp:subject ldp:bindingRule );
    rdfs:comment """
-    we just use this here because the owl:hasSelf restriction no longer works 
-    with the rule indirection.
+     artificial relation needed for ldp:ContainerRule owl:Restriction.
+     This enables on to specify a relation from a subject to a bindingrule, so that
+    one can set an owl:hasSelf restriction
    """.
 
 ldp:ContainerRule owl:equivalentClass [ owl:intersectionOf ( 
                 [ a owl:Restriction;
+                  rdfs:comment """
+                    This restrictions is attempting to state that if one follows the
+                 property subject then bindingRule one will arrive at the same object
+                 again at least once. That should be equivalent to saying that for this class
+                 of objects the :subject relation is the same as the subject of the :bindingRule
+                 relation.
+                 """;
 # problem with pellet reasoning on properties defined via property chains
-#                  owl:onProperty ldp:memberResourceToBindingRule;
-                   owl:onProperty ldp:memberResource;
-                  owl:hasSelf "true"^^xsd:boolean ]
+                  owl:onProperty owl:reflexiveSubjectToBindingRule;
+#                 Pellet does not like the following:
+#                 owl:onProperty [ rdfs:subPropertyOf ldp:subjectToBindingRule;
+#                                  a owl:ReflexiveProperty ];
+                  owl:minCardinality 1 ]
                 [ a owl:Restriction;
-                  owl:onProperty ldp:hasMemberRelation;
+                  owl:onProperty ldp:relation;
                   owl:hasValue ldp:contains ] 
                 [ a owl:Restriction;
-                  owl:onProperty ldp:insertedContentRelation;
+                  owl:onProperty ldp:contentRelation;
                   owl:hasValue ldp:MemberSubject
                 ])];
    rdfs:label "ContainerRule";
@@ -200,10 +229,11 @@ ldp:BasicContainer
  
 </2014/> a ldp:DirectContainer;
       ldp:bindingRule [ a ldp:DirectBindingRule;
-               ldp:isMemberOfRelation sioc:has_container;
-               ldp:membershipResource </2014/>;
+               ldp:relation sioc:container_of;
+               ldp:subject </2014/>;
             ];
-      ldp:contains </2014/e1> .
+      ldp:contains </2014/e1>;
+      sioc:container_of </2014/e1> .
  
 # sioc:has_container owl:inverseOf ldp:contains .
 # 
@@ -214,7 +244,7 @@ ldp:BasicContainer
 </netWorth/> a ldp:DirectContainer;
    dcterms:title "The assets of JohnZSmith";
    ldp:bindingRule [ a ldp:DirectBindingRule;
-        ldp:membershipResource </netWorth/nw1/>;
-        ldp:hasMemberRelation o:asset;
+        ldp:subject </netWorth/nw1/>;
+        ldp:relation o:asset;
       ];
    ldp:contains </netWorth/a1>, </netWorth/a2> .
