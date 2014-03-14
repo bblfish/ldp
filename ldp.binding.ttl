@@ -142,7 +142,7 @@ ldp:DirectBindingRule owl:equivalentClass [ a owl:Restriction;
                     ]. 
 
 ldp:subjectToBindingRule a rdf:Property;
-#   owl:propertyChainAxiom ( ldp:subject ldp:bindingRule );
+   owl:propertyChainAxiom ( ldp:subject ldp:bindingRule );
    rdfs:comment """
      artificial relation needed for ldp:ContainerRule owl:Restriction.
      This enables on to specify a relation from a subject to a bindingrule, so that
@@ -158,12 +158,10 @@ ldp:ContainerRule owl:equivalentClass [ owl:intersectionOf (
                  of objects the :subject relation is the same as the subject of the :bindingRule
                  relation.
                  """;
+# Pellet does not like the following:
 # problem with pellet reasoning on properties defined via property chains
                   owl:onProperty owl:reflexiveSubjectToBindingRule;
-#                 Pellet does not like the following:
-#                 owl:onProperty [ rdfs:subPropertyOf ldp:subjectToBindingRule;
-#                                  a owl:ReflexiveProperty ];
-                  owl:minCardinality 1 ]
+                  owl:hasSelf "true"^^xsd:boolean ]
                 [ a owl:Restriction;
                   owl:onProperty ldp:relation;
                   owl:hasValue ldp:contains ] 
