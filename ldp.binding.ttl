@@ -65,15 +65,35 @@ ldp:contains a rdf:Property, owl:ObjectProperty;
     the ldp:contains relation relates an ldp:Container to a ldp:Resource ( ie a document of some form )
   """ .
 
+##
+## Definition of the Current LDP membership relations
+##
+
+ldp:sameAsBindingRule owl:subPropertyOf ldp:bindingRule, owl:sameAs;
+   skos:editorialNote """
+      In LDP every Container is also a binding rule. One can define all the membership
+    relations as a binding a ldp:bindingRule followed by the new membership relations. 
+   But if one does that then one cannot guarantee that each of the first parts of the 
+   composite relation will have the same bindingRule. Hence we need to define this 
+   ldp:sameAsBindingRule. see membershipResource,  hasMemberRelation, isMemberOfRelation,
+   and insertedContentRelation for usages.
+   This is where the old membership relations smell funny.
+   """.  
+
 ldp:membershipResource a rdf:Property, owl:FunctionalProperty;
   rdfs:label "membershipResource";
-  owl:propertyChainAxiom ( ldp:bindingRule ldp:subject ) ;
+  owl:propertyChainAxiom ( ldp:sameAsBindingRule ldp:subject ) ;
+  skos:editorialNote """
+    The propertyChainAxiom does not really work, since the membershipResource
+    relation works together with the isMemberOfRelation and the insertedContentRelation,
+    and that these all need to have the same subject. With this binding rule  
+  """;
   rdfs:domain ldp:IndirectBindingRule;
   rdfs:range  rdfs:Resource .
 
 ldp:hasMemberRelation a rdf:Property, owl:FunctionalProperty, owl:ObjectProperty;
   rdfs:label "hasMemberRelation";
-  owl:propertyChainAxiom ( ldp:bindingRule ldp:relation ) ;
+  owl:propertyChainAxiom ( ldp:sameAsBindingRule ldp:relation ) ;
   rdfs:domain ldp:IndirectBindingRule;
   rdfs:range  rdf:Property .
   
@@ -88,7 +108,7 @@ ldp:isMemberOfRelation a rdf:Property, owl:FunctionalProperty, owl:ObjectPropert
 
 ldp:insertedContentRelation a owl:FunctionalProperty, owl:ObjectProperty;
   rdfs:label "insertedContentRelation";
-  owl:propertyChainAxiom ( ldp:bindingRule ldp:contentRelation ) ;
+  owl:propertyChainAxiom ( ldp:sameAsBindingRule ldp:contentRelation ) ;
   rdfs:range  rdf:Property .
 
 ### 
@@ -153,14 +173,14 @@ ldp:ContainerRule owl:equivalentClass [ owl:intersectionOf (
                 [ a owl:Restriction;
                   rdfs:comment """
                     This restrictions is attempting to state that if one follows the
-                 property subject then bindingRule one will arrive at the same object
+                 property subject then bindingRule one will arrive at the same rule
                  again at least once. That should be equivalent to saying that for this class
                  of objects the :subject relation is the same as the subject of the :bindingRule
                  relation.
                  """;
 # Pellet does not like the following:
 # problem with pellet reasoning on properties defined via property chains
-                  owl:onProperty owl:reflexiveSubjectToBindingRule;
+                  owl:onProperty owl:subjectToBindingRule;
                   owl:hasSelf "true"^^xsd:boolean ]
                 [ a owl:Restriction;
                   owl:onProperty ldp:relation;
