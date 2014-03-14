@@ -83,11 +83,6 @@ ldp:sameAsBindingRule owl:subPropertyOf ldp:bindingRule, owl:sameAs;
 ldp:membershipResource a rdf:Property, owl:FunctionalProperty;
   rdfs:label "membershipResource";
   owl:propertyChainAxiom ( ldp:sameAsBindingRule ldp:subject ) ;
-  skos:editorialNote """
-    The propertyChainAxiom does not really work, since the membershipResource
-    relation works together with the isMemberOfRelation and the insertedContentRelation,
-    and that these all need to have the same subject. With this binding rule  
-  """;
   rdfs:domain ldp:IndirectBindingRule;
   rdfs:range  rdfs:Resource .
 
@@ -101,9 +96,6 @@ ldp:hasMemberRelation a rdf:Property, owl:FunctionalProperty, owl:ObjectProperty
 ldp:isMemberOfRelation a rdf:Property, owl:FunctionalProperty, owl:ObjectProperty; 
    rdfs:label "isMemberOfRelation";
    owl:propertyChainAxiom ( ldp:hasMemberRelation owl:inverseOf ) ;
-   skos:editorialNote """
-      the ldp:isMemberOfRelation is the equivalent to the hasMemberRelation followed by the owl:inverseOf property 
-   """;
    rdfs:range rdf:Property .
 
 ldp:insertedContentRelation a owl:FunctionalProperty, owl:ObjectProperty;
@@ -240,7 +232,24 @@ ldp:BasicContainer
          owl:onProperty ldp:bindingRule;
          owl:cardinality 1 ] .
 
-## example
+## Original LDP Example
+
+@prefix dcterms: <http://purl.org/dc/terms/>.
+@prefix o: <http://example.org/ontology/>.
+
+</2013/>
+   a ldp:DirectContainer;
+   dcterms:title "The assets of JohnZSmith";
+   ldp:membershipResource <http://example.org/netWorth/nw1>;
+   ldp:hasMemberRelation o:asset;
+   ldp:insertedContentRelation ldp:MemberSubject.
+
+<http://example.org/netWorth/nw1>
+   a o:NetWorth;
+   o:asset </2013/a1>, </2013/a3>, </2013/a2>.
+
+
+##  same using proposed binding Rules
 @base <http://example.org/> .
 @prefix ex: <http://example/> .
 @prefix sioc: <http://rdfs.org/sioc/ns#> .
@@ -256,8 +265,6 @@ ldp:BasicContainer
 # sioc:has_container owl:inverseOf ldp:contains .
 # 
 
-@prefix dcterms: <http://purl.org/dc/terms/>.
-@prefix o: <http://example.org/ontology/>.
 
 </netWorth/> a ldp:DirectContainer;
    dcterms:title "The assets of JohnZSmith";
